@@ -34,13 +34,6 @@ The source of [blog.jayson.com.br](https://blog.jayson.com.br). [Astro](https://
 
 The site has no environment variables. `src/consts.ts` has the site URL, the title, and the links.
 
-The deploy job in CI needs two secrets in the `production` environment:
-
-| Secret | Value |
-|---|---|
-| `CLOUDFLARE_API_TOKEN` | An API token with the "Edit Cloudflare Workers" permissions. |
-| `CLOUDFLARE_ACCOUNT_ID` | The ID of the Cloudflare account. |
-
 ## Develop
 
 - Lint and type check: `scripts/lint.sh`
@@ -51,4 +44,6 @@ The deploy job in CI needs two secrets in the `production` environment:
 
 ## Deploy
 
-CI deploys every push to `main`, after the lint, test, and build jobs pass. To deploy by hand, run `pnpm run deploy`.
+Cloudflare Workers Builds deploys every push to `main`. A pull request gets a preview URL. To deploy by hand, run `pnpm run deploy`.
+
+GitHub CI runs the lint, test, and build jobs only. It does not deploy.

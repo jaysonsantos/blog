@@ -26,7 +26,7 @@ A personal blog. Astro builds a static site. A Cloudflare Worker with static ass
 - Test: `scripts/test.sh`
 - Everything, then a build into `dist/`: `scripts/all.sh`
 - Serve `dist/` the way Cloudflare does: `pnpm preview`
-- Deploy by hand: `pnpm run deploy`. CI deploys every push to `main`.
+- Deploy by hand: `pnpm run deploy`. Cloudflare Workers Builds deploys every push to `main`.
 
 ## Rules
 
@@ -39,6 +39,8 @@ A personal blog. Astro builds a static site. A Cloudflare Worker with static ass
 
 ## Deployment
 
-- The `deploy` job of `.github/workflows/ci.yml` needs the secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the `production` environment.
-- The token needs the "Edit Cloudflare Workers" template permissions on the account and on the `jayson.com.br` zone.
-- The first `wrangler deploy` creates the DNS record and the certificate of `blog.jayson.com.br`.
+- Cloudflare Workers Builds connects the `blog` Worker to this repository. The connection lives in the Cloudflare dashboard, not in git.
+- A push to `main` runs `pnpm build`, then `npx wrangler deploy`. A push to another branch uploads a preview version and does not change production.
+- Workers Builds does not use the nix flake. It takes the pnpm version from `packageManager` in `package.json`.
+- Workers Builds deploys also when GitHub CI fails. Run `scripts/lint.sh` before a push to `main`.
+- GitHub CI does not deploy and needs no secrets.
