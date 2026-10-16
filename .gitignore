@@ -1,0 +1,19 @@
+# Build output
+dist/
+.astro/
+.wrangler/
+
+# Dependencies
+node_modules/
+
+# Nix and direnv
+.direnv/
+result
+
+# Local environment
+.env
+.dev.vars
+
+# Editors and OS
+.idea/
+.DS_Store

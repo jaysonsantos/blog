@@ -1,0 +1,60 @@
+---
+import { PATHS, SITE_TITLE } from "../consts.ts";
+
+const NAV = [
+  { href: PATHS.home, label: "Posts" },
+  { href: PATHS.tags, label: "Tags" },
+  { href: PATHS.rss, label: "RSS" },
+] as const;
+
+const current = Astro.url.pathname;
+
+function isActive(href: string): boolean {
+  if (href === PATHS.home) {
+    return current === PATHS.home || current.startsWith(PATHS.posts);
+  }
+  return current.startsWith(href);
+}
+---
+
+<header class="site-header">
+  <a class="site-title" href={PATHS.home}>{SITE_TITLE}</a>
+  <nav aria-label="Main">
+    {
+      NAV.map(({ href, label }) => (
+        <a href={href} aria-current={isActive(href) ? "page" : undefined}>
+          {label}
+        </a>
+      ))
+    }
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-block: 2rem 1rem;
+  }
+  .site-title {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--text);
+    text-decoration: none;
+  }
+  nav {
+    display: flex;
+    gap: 1rem;
+  }
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  nav a:hover,
+  nav a[aria-current="page"] {
+    color: var(--accent);
+  }
+</style>

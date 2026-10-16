@@ -1,0 +1,62 @@
+---
+import { Image } from "astro:assets";
+import FormattedDate from "../components/FormattedDate.astro";
+import TagList from "../components/TagList.astro";
+import { isSameDay } from "../lib/dates.ts";
+import type { Post } from "../lib/posts.ts";
+import Base from "./Base.astro";
+
+const HERO_WIDTH = 1280;
+const HERO_HEIGHT = 640;
+
+type Props = Post["data"];
+
+const { title, description, pubDate, updatedDate, tags, heroImage } = Astro.props;
+const showUpdated = updatedDate !== undefined && !isSameDay(pubDate, updatedDate);
+---
+
+<Base title={title} description={description} type="article" publishedTime={pubDate}>
+  <article class="post">
+    <header class="post-header">
+      <h1>{title}</h1>
+      <p class="meta">
+        <FormattedDate date={pubDate} />
+        {
+          showUpdated && (
+            <span>
+              {" · updated "}
+              <FormattedDate date={updatedDate} />
+            </span>
+          )
+        }
+      </p>
+      <TagList tags={tags} />
+    </header>
+    {heroImage && <Image class="hero" src={heroImage} width={HERO_WIDTH} height={HERO_HEIGHT} alt="" />}
+    <div class="prose">
+      <slot />
+    </div>
+  </article>
+</Base>
+
+<style>
+  .post-header {
+    margin-block: 2rem;
+  }
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+    line-height: 1.2;
+  }
+  .meta {
+    margin: 0 0 0.5rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  .hero {
+    width: 100%;
+    height: auto;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+  }
+</style>

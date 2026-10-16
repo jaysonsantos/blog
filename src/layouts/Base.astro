@@ -1,0 +1,31 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import { SITE_LANG } from "../consts.ts";
+
+interface Props {
+  title: string;
+  description: string;
+  type?: "article" | "website";
+  publishedTime?: Date;
+}
+
+const props = Astro.props;
+---
+
+<!doctype html>
+<html lang={SITE_LANG}>
+  <head>
+    <BaseHead {...props} />
+  </head>
+  <body>
+    <div class="page">
+      <Header />
+      <main>
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>

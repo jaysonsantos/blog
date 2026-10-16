@@ -1,0 +1,70 @@
+# Run with `prek run --all-files`. Tools come from flake.nix and package.json.
+exclude: ^(flake\.lock|pnpm-lock\.yaml)$
+repos:
+  - repo: builtin
+    hooks:
+      - id: check-merge-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        # Two trailing spaces are a line break in Markdown.
+        args: [--markdown-linebreak-ext=md]
+      - id: check-yaml
+      - id: mixed-line-ending
+
+  - repo: local
+    hooks:
+      - id: biome
+        name: biome
+        entry: pnpm exec biome check --no-errors-on-unmatched --files-ignore-unknown=true
+        language: system
+        types_or: [javascript, ts, json, css, astro, svg]
+
+      - id: astro-check
+        name: astro check
+        entry: pnpm typecheck
+        language: system
+        pass_filenames: false
+        files: ^(src/|astro\.config\.ts|tsconfig\.json|package\.json)
+
+      - id: typos
+        name: typos
+        entry: typos
+        language: system
+        exclude_types: [binary]
+
+      - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        language: system
+        files: \.sh$
+
+      - id: nixfmt
+        name: nixfmt
+        entry: nixfmt --check
+        language: system
+        files: \.nix$
+
+      - id: editorconfig
+        name: editorconfig
+        entry: editorconfig-checker
+        language: system
+        exclude_types: [binary]
+
+      - id: actionlint
+        name: actionlint
+        entry: actionlint
+        language: system
+        files: ^\.github/workflows/
+
+      - id: zizmor
+        name: zizmor
+        entry: zizmor .github/workflows
+        language: system
+        pass_filenames: false
+        files: ^\.github/workflows/
+
+      - id: gitleaks
+        name: gitleaks
+        entry: gitleaks git --pre-commit --staged --redact --no-banner
+        language: system
+        pass_filenames: false

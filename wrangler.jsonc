@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // A Worker with static assets only. No server code: Cloudflare serves `dist/` as it is.
+  "name": "blog",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "force-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  // `wrangler deploy` creates the DNS record and the certificate for the custom domain.
+  "routes": [{ "pattern": "blog.jayson.com.br", "custom_domain": true }]
+}
