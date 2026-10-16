@@ -2,7 +2,7 @@
 title: "Beni: a typed functional language for the browser, with no async/await"
 description: "Beni is a statically typed functional language that compiles to JavaScript."
 pubDate: 2026-10-16T18:37:04Z
-updatedDate: 2026-10-16T19:14:29Z
+updatedDate: 2026-10-16T22:14:15Z
 tags: ["elm", "functional", "javascript"]
 ---
 
@@ -10,11 +10,15 @@ Beni is a statically typed functional language that compiles to JavaScript. My f
 
 You can try it in the [playground](https://canassa.github.io/beni/playground/) without installing anything. The compiler runs in the browser as WebAssembly. The code is at [github.com/canassa/beni](https://github.com/canassa/beni).
 
+What I think is the best part is the implicit schema validation. If you decode some JSON text and pattern match on the result, and the match asks for something like `user.name`, the compiler uses the way you declare the functions and the match to insert the schema validation for you. That is pretty cool.
+
+I also like the type system, which makes sure you don't have runtime errors like trying to divide a string by a number, and that async code looks like "imperative" code, where you just use the result and there is no `.then`, no `.catch` and no `await` that you need to write, because the language abstracts that away from you. It helps me create slop code faster, but without having to iterate a lot, because of the type system.
+
 ## Why Beni?
 
 Elm showed that a web app can run for years without a runtime error. Most web apps are written in TypeScript instead, and its types don't always mean what they say.
 
-Beni started as an Elm clone for the browser and turned into an experiment in how far current tools can be pushed, borrowing from Roc, Solid, Effect and Zig. It has three goals, and the rest of this post takes them one at a time.
+Beni started as an Elm clone for the browser and turned into an experiment in how far current tools can be pushed, borrowing from Roc, Solid, Effect and Zig. It has a few goals, which I go through below.
 
 ### TypeScript's types can lie
 
@@ -34,9 +38,9 @@ This compiles without a warning, because arrays are covariant in TypeScript. And
 
 Beni has no `any`, no casts and no subtyping, so a `List String` only ever holds strings, and there's no escape hatch for a person or an agent to reach for. Failures are values in the type, like the `Result` that `fetchName` returns further down. Data from outside, like JSON, comes in through a schema that checks it. And because Beni uses Hindley-Milner inference, the compiler works out the types, so you get all this without writing annotations everywhere.
 
-## Programs that don't crash
+## Code that doesn't crash
 
-The first goal is the one Elm already reached: if a program compiles, it shouldn't crash. Beni keeps that rule and tightens it where your code meets the browser.
+Elm already has this: if it compiles, it shouldn't crash. Beni keeps that rule at the compiler level, and it generates the JavaScript boilerplate to ensure it, like validating JSON against the types your code uses.
 
 ### Runtime errors
 
@@ -44,7 +48,7 @@ Beni has no `null`, `undefined` or exceptions, and a `case` has to cover every v
 
 Beni code can't call JavaScript directly. Browser and Node APIs are wrapped by hand in the platform layer, and each failure an API documents is returned as a typed error such as `QuotaExceeded` or `NotFound`. Catch-all `try`/`catch` isn't allowed there. If an API fails in a way its docs don't mention, we treat it as a bug in Beni, and the program stops instead of continuing in a bad state.
 
-So the guarantee covers the code you write. The platform layer is written and reviewed by hand, and the compiler doesn't verify it.
+The platform layer is written and reviewed by hand, and the compiler doesn't verify it.
 
 ### Error messages
 
@@ -60,13 +64,13 @@ With currying, the compiler couldn't give that message, which is one of the reas
 
 In a curried language, a lambda with a missing parameter often still type checks, because the compiler assumes you meant to return a function. The error shows up later, usually far from the mistake. Without currying, a one-argument function and a two-argument function have different types, and the error points at the lambda.
 
-Partial application is written with `_`, as in `List.map xs (scale 2 _)`. The `_` can stand for any argument, including the first. What you lose is point-free style.
+Partial application is written with `_`, as in `List.map xs (scale 2 _)`. The `_` can stand for any argument, including the first.
 
-## Output as small as hand-written JavaScript
+## Output size
 
-The second goal is output that's about as small and fast as JavaScript you'd write by hand.
+The output should be as small and fast as JavaScript you'd write by hand, most of the time at least.
 
-### Compilers are a good thing
+### Whole-program optimisation
 
 A TypeScript project usually needs a type checker, a bundler, a minifier, a formatter and a dev server. Beni is one binary that does all of it.
 
@@ -82,9 +86,9 @@ Beni uses plain JavaScript arrays instead. An ownership checker, similar to Rust
 
 Its core rules are modelled in Lean 4. All that to save a kilobyte and a few nanoseconds is a bit crazy, and we know it.
 
-## A language that gets out of your way
+## Language features
 
-The third goal is that safety shouldn't come with ceremony, and that the compiler should be fast enough that you never wait on it.
+Safety shouldn't come with ceremony or long compile times. The compiler should be fast, so the iteration feedback is good to work with.
 
 ### No async/await
 
@@ -148,9 +152,6 @@ The downside is that the source doesn't show where a function might suspend. Whe
 Beni has static dispatch, modeled on Roc's. A type's methods are the public functions of the module that defines it, so `v.add w` calls `Vec.add v w`, resolved at compile time. Generic code can ask for a method with a `where a.add : a, a → a` clause. `==` and `<` call the type's `eq` and `compare`, which records and custom types get automatically.
 
 This fixes two things that come up a lot in Elm. Custom types can be `Dict` keys and can be sorted, without Elm's special `comparable` type. And a method can be picked by the type you expect back, which is how JSON decoding works: `Json.decode text` finds the decoder from the result type, so you don't write one by hand for every record.
-
-You get most of what type classes give you, without instances, orphan rules or the compile-time cost that comes with them.
-
 ### Unicode syntax
 
 Maybe the most controversial decision 😅
@@ -166,7 +167,7 @@ Also, we're having fun. What's the point of writing your own language if it look
 
 For the hardcore folks still typing code by hand: write `->` and `beni fmt --migrate-unicode` turns it into `→` for you. Editor plugins will do the same as you type, once they exist.
 
-## Batteries included
+## JSX and schemas
 
 ### JSX
 
@@ -209,8 +210,7 @@ main = Tea.sandbox { init = λ⊤ → 0, update = update, view = view }
 
 ### Schemas
 
-Almost every project I've worked on has needed a validation library like Zod or Joi. In Beni, schemas are part of the language. Because the compiler handles them, each schema is compiled into its own small, specialised JavaScript parser. You ship code only for the schemas you actually use, not a whole validation library.
-
+Almost every project I've worked on has needed a validation library like Zod or Joi. In Beni, schemas are part of the language. Because the compiler handles them, each schema is compiled into its own small, specialised JavaScript parser.
 ```elm
 schema Item =
     id : Int
