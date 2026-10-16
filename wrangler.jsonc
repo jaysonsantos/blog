@@ -9,5 +9,12 @@
     "not_found_handling": "404-page"
   },
   // `wrangler deploy` creates the DNS record and the certificate for the custom domain.
-  "routes": [{ "pattern": "blog.jayson.com.br", "custom_domain": true }]
+  "routes": [{ "pattern": "blog.jayson.com.br", "custom_domain": true }],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+      "persist": true
+    }
+  }
 }
