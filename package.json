@@ -17,14 +17,14 @@
     "test": "node --test --experimental-transform-types 'test/**/*.test.ts'"
   },
   "dependencies": {
-    "@astrojs/mdx": "8.1.0",
+    "@astrojs/mdx": "8.1.1",
     "@astrojs/rss": "4.0.19",
     "@astrojs/sitemap": "3.7.4",
-    "astro": "7.4.0",
+    "astro": "7.4.2",
     "sharp": "0.35.5"
   },
   "devDependencies": {
-    "@astrojs/check": "0.9.10",
+    "@astrojs/check": "0.9.12",
     "@biomejs/biome": "2.5.15",
     "@types/node": "^24.19.2",
     "typescript": "6.0.3",
