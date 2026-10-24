@@ -28,6 +28,6 @@
     "@biomejs/biome": "2.5.15",
     "@types/node": "^24.19.2",
     "typescript": "6.0.3",
-    "wrangler": "4.151.0"
+    "wrangler": "4.152.0"
   }
 }
